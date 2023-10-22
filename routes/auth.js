@@ -5,57 +5,65 @@ const User = require('../models/User')
 const fetchUser = require('../middleware/fetchUser')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const axios = require('axios');
 require('dotenv').config();
 
 const jWT_key = process.env.SECRET_KEY
+const HUNTER_API_KEY = process.env.HUNTER_API_KEY
 
 // Route 1: create a user using POST  "/api/auth/createuser". No login required
 router.post('/createuser',[
    body('email','Type a valid Email').isEmail(),
    body('name','type a valid name').isLength({min: 2}),
    body('password','type a valid password').isLength({min: 5})
-], async ( req , res)=>{
-  let success=false;
-   const errors = validationResult(req);
-   if(!errors.isEmpty()) {
-    //handle body errors
-    success=false
-      return res.status(400).json({success, errors : errors.array() })
-   }
-   // try catch
-   try{
-    // hash,salt added to password
-     const salt = await bcrypt.genSalt(10)
-     const scretpass =await bcrypt.hash(req.body.password,salt)
-     //create user
-    let user = await User.create({
-      name : req.body.name,
-      password : scretpass,
-      email : req.body.email
-     })
-     //JWT Token
-     const data = {
-      user :{
-        id : user.id
-      }
-     }
-     const jwt_token = jwt.sign(data, jWT_key)
-     success=true
-     res.json({success,jwt_token})
-   }
-   catch(err){
-    if (err.code === 11000 && err.keyPattern && err.keyPattern.email) {
-      // Handle duplicate email error
-      success=false
-      res.status(400).json({success, error: "Email already exists!" });
-    } else {
-      // Handle other potential errors
-      success=false
-      res.status(500).json({success, error: "Internal server error" });
-    }
-   }
-})
+], async (req, res) => {
+  let success = false;
+  const errors = validationResult(req);
 
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ success, errors: errors.array() });
+  }
+
+  try {
+      // Attempt to verify email with Hunter.io
+      try {
+        const response = await axios.get(`https://api.hunter.io/v2/email-verifier?email=${req.body.email}&api_key=${HUNTER_API_KEY}`);
+          
+          if (response.data.data.result !== 'deliverable') {
+              return res.status(400).json({ success, error: 'Please provide a valid email address.' });
+          }
+      } catch (hunterError) {
+          // Log the error for your records but continue without verification
+          console.error('Hunter.io API error:', hunterError.message);
+      }
+      
+      const salt = await bcrypt.genSalt(10);
+      const scretpass = await bcrypt.hash(req.body.password, salt);
+
+      let user = await User.create({
+          name: req.body.name,
+          password: scretpass,
+          email: req.body.email
+      });
+
+      const data = {
+          user: {
+              id: user.id
+          }
+      };
+
+      const jwt_token = jwt.sign(data, jWT_key);
+      success = true;
+      res.json({ success, jwt_token });
+
+  } catch (err) {
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.email) {
+          res.status(400).json({ success, error: "Email already exists!" });
+      } else {
+          res.status(500).json({ success, error: "Internal server error" });
+      }
+  }
+});
 
 // Route 2:Login a user using POST  "/api/auth/login". No login required
 router.post('/login',[

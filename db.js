@@ -12,7 +12,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Replace with your MongoDB Atlas connection string
+
 const mongooseURl = process.env.DATABASE_URL;
 
 const connectToMongo = () => {
