@@ -1,13 +1,14 @@
-const express = require('express')
-const router = express.Router()
-const { body, validationResult } = require('express-validator');
-const User = require('../models/User')
-const fetchUser = require('../middleware/fetchUser')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const axios = require('axios');
-require('dotenv').config();
+import express from 'express';
+const router = express.Router();
 
+import { body, validationResult } from 'express-validator';
+import User from '../models/User';
+import fetchUser from '../middleware/fetchUser';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 const jWT_key = process.env.SECRET_KEY
 const HUNTER_API_KEY = process.env.HUNTER_API_KEY
 
@@ -116,7 +117,7 @@ router.post('/login',[
 router.post('/userdetails',fetchUser,async(req,res)=>{
   try {
     const userid=req.user.id
-    const user =await User.findById(userid).select('-password')
+    const user =await User.findById(userid).select('-password ')
     res.send(user)
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
@@ -125,4 +126,4 @@ router.post('/userdetails',fetchUser,async(req,res)=>{
 
 
 
-module.exports= router
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const {Schema} = mongoose
 const NotesSchema = new Schema({
@@ -23,4 +23,6 @@ const NotesSchema = new Schema({
         default : Date.Now
     }
 })
-module.exports = mongoose.model('Notes', NotesSchema)
+const notes = mongoose.model('Notes', NotesSchema)
+
+export default notes;
