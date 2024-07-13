@@ -1,15 +1,12 @@
-import express from 'express';
-const router = express.Router();
-
-import { body, validationResult } from 'express-validator';
-import fetchUser from '../middleware/fetchUser';
-import Notes from '../models/Notes';
-
-
+const express = require('express')
+const router = express.Router()
+const { body, validationResult } = require('express-validator');
+const fetchUser = require('../middleware/fetchUser')
+const Notes = require('../models/Notes');
 
 
 //  Route 1: add a note using POST  "/api/notes/addnotes". login required
-router.post('/addnotes',[ 
+router.post('/addnotes',[
     // validation
     body('title','Type a title').exists(),
     body('description','type  description of more than 2 words').isLength({min: 2})
@@ -50,7 +47,7 @@ router.get('/allnotes',fetchUser,async(req,res)=>{
 router.put('/updatenotes/:id',fetchUser,async(req,res)=>{
     const {title,description,tag} = req.body;
     // create updatted note
-    const newnote={} 
+    const newnote={}
     if(title){newnote.title = title}
     if(description){newnote.description = description}
     if(tag){newnote.tag = tag}
@@ -81,4 +78,4 @@ router.delete('/deletenotes/:id',fetchUser,async(req,res)=>{
         return res.status(500).json({ error: "Error updating the note" });
      }
 })
-export default router;
+module.exports= router

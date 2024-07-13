@@ -9,9 +9,9 @@
 // module.exports = connectToMongo;
 
 
-import mongoose from "mongoose"
-import dotenv from 'dotenv';
-dotenv.config();
+const mongoose = require('mongoose');
+require('dotenv').config();
+
 
 const mongooseURl = process.env.DATABASE_URL;
 
@@ -25,5 +25,4 @@ const connectToMongo = () => {
     });
 }
 
-export default connectToMongo;
-
+module.exports = connectToMongo;

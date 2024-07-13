@@ -1,6 +1,5 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-dotenv.config();
+const jwt = require('jsonwebtoken')
+require('dotenv').config();
 const jWT_key = process.env.SECRET_KEY
 
 
@@ -20,4 +19,4 @@ const fetchuser= (req,res,next)=>{
 
 
 }
-export default fetchuser;
+module.exports= fetchuser
