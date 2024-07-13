@@ -1,6 +1,6 @@
-const connectToMongo = require('./db')
 const express = require('express')
 var cors = require('cors')
+const connectToMongo = require('./db')
 require('dotenv').config();
 
 
@@ -12,6 +12,9 @@ app.use(cors())
 app.use(express.json())
 
 //Available routes
+app.get('/',(req,res)=>{
+  res.send('Api started running')
+})
 app.use('/api/auth',require('./routes/auth'))
 app.use('/api/notes',require('./routes/notes'))
 
